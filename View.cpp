@@ -120,7 +120,7 @@ void CView::MessageReceived(BMessage* pMsg)
 			break;
 
 		default:
-			CView::MessageReceived(pMsg);
+			BView::MessageReceived(pMsg);
 			break;
 	}
 }
