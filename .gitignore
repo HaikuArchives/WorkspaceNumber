@@ -1,1 +1,3 @@
-obj.*
+.genio
+WorkspaceReplicant
+source/objects.*
