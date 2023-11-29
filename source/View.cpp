@@ -1,10 +1,11 @@
 /*
  * Copyright 1999, Michał Kowalski
+ * Copyright 2023, HaikuArchives Team
  * Distributed under the terms of the MIT License.
  *
  * Authors:
  * 		Michał Kowalski
- *
+ *		Humdinger
  */
 
 
@@ -12,6 +13,7 @@
 #include "App.h"
 
 #include <Alert.h>
+#include <ColorConversion.h>
 #include <Deskbar.h>
 #include <MenuItem.h>
 #include <Screen.h>
@@ -19,28 +21,32 @@
 #include <stdio.h>
 
 
+extern "C" BView* instantiate_deskbar_item(float maxWidth, float maxHeight);
+
+
+BView*
+instantiate_deskbar_item(float maxWidth, float maxHeight)
+{
+	return new View(BRect(0, 0, maxWidth - 1, maxHeight - 1));
+}
+
+
 View::View(BRect rect)
 	:
-	BView(rect, VIEW_SIG, B_FOLLOW_ALL_SIDES, B_WILL_DRAW | B_FRAME_EVENTS)
+	BView(rect, kViewSignature, B_FOLLOW_ALL_SIDES, B_WILL_DRAW | B_FRAME_EVENTS),
+	fRunner(NULL)
 {
 	fCurrentWorkspace = -1;
+
+	// BFont font = *be_bold_font;
+	// SetFont(&font);
 }
 
 
-// Instantiate View from archive
-View*
-View::Instantiate(BMessage* dataMsg)
-{
-	if (!validate_instantiation(dataMsg, "View"))
-		return NULL;
-
-	return new View(dataMsg);
-}
-
-
-View::View(BMessage* message)
+View::View(BMessage* archive)
 	:
-	BView(message)
+	BView(archive),
+	fRunner(NULL)
 {
 	SetResizingMode(B_FOLLOW_ALL_SIDES);
 	SetFlags(B_WILL_DRAW);
@@ -49,9 +55,26 @@ View::View(BMessage* message)
 
 	SetDrawingMode(B_OP_COPY);
 
-	fFont = *be_bold_font;
-	fFont.SetSize(11);
-	SetFont(&fFont);
+	BFont font = *be_bold_font;
+	SetFont(&font);
+}
+
+
+View::~View()
+{
+	if (fRunner != NULL)
+		delete fRunner;
+}
+
+
+// Instantiate View from archive
+View*
+View::Instantiate(BMessage* dataMsg)
+{
+	if (!validate_instantiation(dataMsg, kClassName))
+		return NULL;
+
+	return new View(dataMsg);
 }
 
 
@@ -77,10 +100,10 @@ View::AttachedToWindow()
 void
 View::Remove()
 {
-	BDeskbar* pDeskbar = new BDeskbar();
-	status_t err = pDeskbar->RemoveItem(VIEW_SIG);
-	if (err != B_OK)
-		(new BAlert(NULL, strerror(err), "OK"))->Go(NULL);
+	BDeskbar* deskbar = new BDeskbar();
+	status_t status = deskbar->RemoveItem(kViewSignature);
+	if (status != B_OK)
+		(new BAlert(NULL, strerror(status), "OK"))->Go(NULL);
 }
 
 
@@ -88,15 +111,12 @@ View::Remove()
 void
 View::MouseDown(BPoint point)
 {
-	MakeFocus(true);
-
 	BPoint cursor;
 	uint32 buttons = 0;
 	GetMouse(&cursor, &buttons, true);
 
 	if (buttons & B_SECONDARY_MOUSE_BUTTON) {
 		ConvertToScreen(&point);
-		fPopup->Bounds().PrintToStream();
 		fPopup->Go(point, true, true, BRect(point, point + BPoint(20, 20)), true);
 	}
 }
@@ -158,22 +178,41 @@ View::Draw(BRect rect)
 	SetHighColor(bgColor);
 	FillEllipse(rect);
 
+	// determine color for stroke / number string
+	int brightness = BPrivate::perceptual_brightness(bgColor);
+	if (brightness > 127)
+		SetHighColor(16, 16, 16);
+	else
+		SetHighColor(240, 240, 240);
+
+	StrokeEllipse(rect.InsetByCopy(1, 1));
+
 	char buffer[16];
 	sprintf(buffer, "%d", int(fCurrentWorkspace + 1));
 	float width = StringWidth(buffer);
 	// set low color for right text anti-aliasing
 	SetLowColor(bgColor);
-	SetHighColor(255, 255, 255);
-	DrawString(buffer, BPoint((rect.Width() - width + 1.0) / 2.0, 12));
+
+	BFont font;
+	GetFont(&font);
+	font_height fontHeight;
+	font.GetHeight(&fontHeight);
+	float y = (rect.bottom + rect.top
+		+ ceilf(fontHeight.ascent) - ceilf(fontHeight.descent)) / 2;
+	float x = (rect.Width() - width + 1.0) / 2.0;
+	DrawString(buffer, BPoint(x, y));
 }
 
 
 status_t
-View::Archive(BMessage* dataMsg, bool deep /* = true*/) const
+View::Archive(BMessage* dataMsg, bool deep) const
 {
-	BView::Archive(dataMsg, deep);
-	dataMsg->AddString("add_on", APP_SIG);
-	dataMsg->AddString("class", "View");
+	status_t status = BView::Archive(dataMsg, deep);
+	if (status != B_OK)
+		return status;
+
+	dataMsg->AddString("add_on", kApplicationSignature);
+	dataMsg->AddString("class", kClassName);
 
 	return B_OK;
 }

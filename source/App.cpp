@@ -17,16 +17,17 @@
 
 App::App()
 	:
-	BApplication(APP_SIG)
+	BApplication(kApplicationSignature)
 {
 	BDeskbar* deskbar = new BDeskbar();
 	// if already installed - remove
-	if (deskbar->HasItem(VIEW_SIG)) {
-		status_t status = deskbar->RemoveItem(VIEW_SIG);
+	if (deskbar->HasItem(kViewSignature)) {
+		status_t status = deskbar->RemoveItem(kViewSignature);
 		if (status != B_OK)
 			(new BAlert(NULL, strerror(status), "OK"))->Go(0);
 	} else {
-		View* replicant = new View(BRect(0, 0, 15, 15));
+		float height = deskbar->MaxItemHeight();
+		View* replicant = new View(BRect(0, 0, height, height));
 		status_t status = deskbar->AddItem(replicant);
 		if (status != B_OK)
 			(new BAlert(NULL, strerror(status), "OK"))->Go(0);

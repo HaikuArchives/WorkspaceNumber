@@ -9,7 +9,6 @@
 #ifndef VIEW_H
 #define VIEW_H
 
-#include <Font.h>
 #include <MessageRunner.h>
 #include <PopUpMenu.h>
 #include <View.h>
@@ -26,7 +25,8 @@ class View : public BView
 {
 public:
 					View(BRect rect);
-					View(BMessage* message);
+					View(BMessage* archive);
+					~View();
 
 	virtual void 	AttachedToWindow();
 	virtual void 	MessageReceived(BMessage* message);
@@ -41,7 +41,6 @@ private:
 
 	BMessageRunner*	fRunner;
 	int32			fCurrentWorkspace;
-	BFont 			fFont;
 	BPopUpMenu*		fPopup;
 
 };

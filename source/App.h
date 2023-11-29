@@ -13,8 +13,9 @@
 #include <Application.h>
 
 
-#define APP_SIG "application/x-vnd.MKowalski-Workspace"
-#define VIEW_SIG "CurrentWorkspaceNo"
+#define kApplicationSignature "application/x-vnd.MKowalski-Workspace"
+#define kClassName "WorkspaceNumber"
+#define kViewSignature "WorkspaceNumberView"
 
 
 class App : BApplication {
