@@ -8,7 +8,7 @@
 ## file:///system/develop/documentation/makefile-engine.html
 
 # The name of the binary.
-NAME = ../../WorkspaceReplicant
+NAME = ../../WorkspaceNumber
 
 # The type of binary, must be one of:
 #	APP:	Application
@@ -35,7 +35,7 @@ SRCS = App.cpp View.cpp
 
 #	Specify the resource definition files to use. Full or relative paths can be
 #	used.
-RDEFS = WorkspaceReplicant.rdef
+RDEFS = WorkspaceNumber.rdef
 
 #	Specify the resource files to use. Full or relative paths can be used.
 #	Both RDEFS and RSRCS can be utilized in the same Makefile.
