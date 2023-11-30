@@ -12,13 +12,18 @@
 #include "View.h"
 #include "App.h"
 
+#include <AboutWindow.h>
 #include <Alert.h>
+#include <Catalog.h>
 #include <ColorConversion.h>
 #include <Deskbar.h>
 #include <MenuItem.h>
 #include <Screen.h>
 
 #include <stdio.h>
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "Application"
 
 
 extern "C" BView* instantiate_deskbar_item(float maxWidth, float maxHeight);
@@ -37,9 +42,6 @@ View::View(BRect rect)
 	fRunner(NULL)
 {
 	fCurrentWorkspace = -1;
-
-	// BFont font = *be_bold_font;
-	// SetFont(&font);
 }
 
 
@@ -67,17 +69,6 @@ View::~View()
 }
 
 
-// Instantiate View from archive
-View*
-View::Instantiate(BMessage* dataMsg)
-{
-	if (!validate_instantiation(dataMsg, kClassName))
-		return NULL;
-
-	return new View(dataMsg);
-}
-
-
 void
 View::AttachedToWindow()
 {
@@ -89,79 +80,13 @@ View::AttachedToWindow()
 
 	// Build popup menu
 	fPopup = new BPopUpMenu("PopUpMenu", false, false);
-	fPopup->AddItem(new BMenuItem("About" B_UTF8_ELLIPSIS, new BMessage(MSG_ABOUT)));
+	fPopup->AddItem(new BMenuItem(B_TRANSLATE("About" B_UTF8_ELLIPSIS), new BMessage(MSG_ABOUT)));
 	fPopup->AddSeparatorItem();
-	fPopup->AddItem(new BMenuItem("Quit", new BMessage(MSG_QUIT)));
+	fPopup->AddItem(new BMenuItem(B_TRANSLATE("Quit"), new BMessage(MSG_QUIT)));
 	fPopup->SetTargetForItems(this);
 }
 
 
-// Remove Deskbar add-on
-void
-View::Remove()
-{
-	BDeskbar* deskbar = new BDeskbar();
-	status_t status = deskbar->RemoveItem(kViewSignature);
-	if (status != B_OK)
-		(new BAlert(NULL, strerror(status), "OK"))->Go(NULL);
-}
-
-
-// Display popup menu on right mouse click
-void
-View::MouseDown(BPoint point)
-{
-	BPoint cursor;
-	uint32 buttons = 0;
-	GetMouse(&cursor, &buttons, true);
-
-	if (buttons & B_SECONDARY_MOUSE_BUTTON) {
-		ConvertToScreen(&point);
-		fPopup->Go(point, true, true, BRect(point, point + BPoint(20, 20)), true);
-	}
-}
-
-
-void
-View::MessageReceived(BMessage* message)
-{
-	switch (message->what) {
-		case MSG_REFRESH_DISP:
-		{
-			// check if current workspace has changed
-			int32 workspace = current_workspace();
-			if (fCurrentWorkspace != workspace) {
-				fCurrentWorkspace = workspace;
-				Draw(Bounds());
-			}
-			break;
-		}
-
-		case MSG_QUIT:
-		{
-			// Remove workspace indicator from Deskbar
-			Remove();
-			break;
-		}
-
-		case MSG_ABOUT:
-			// Display about app info
-			(new BAlert("WorkspaceNum",
-				 "Current workspace number in Deskbar\n"
-				 "© 1999 Michal Kowalski\n\n"
-				 "This app is free.",
-				 "OK"))
-				->Go(NULL);
-			break;
-
-		default:
-			BView::MessageReceived(message);
-			break;
-	}
-}
-
-
-// Redraw current workspace number
 void
 View::Draw(BRect rect)
 {
@@ -204,6 +129,49 @@ View::Draw(BRect rect)
 }
 
 
+void
+View::MessageReceived(BMessage* message)
+{
+	switch (message->what) {
+		case MSG_REFRESH_DISP:
+		{
+			// check if current workspace has changed
+			int32 workspace = current_workspace();
+			if (fCurrentWorkspace != workspace) {
+				fCurrentWorkspace = workspace;
+				Draw(Bounds());
+			}
+		} break;
+
+		case MSG_QUIT:
+			_Remove();
+			break;
+
+		case MSG_ABOUT:
+			_ShowAbout();
+			break;
+
+		default:
+			BView::MessageReceived(message);
+			break;
+	}
+}
+
+
+void
+View::MouseDown(BPoint point)
+{
+	BPoint cursor;
+	uint32 buttons = 0;
+	GetMouse(&cursor, &buttons, true);
+
+	if (buttons & B_SECONDARY_MOUSE_BUTTON) {
+		ConvertToScreen(&point);
+		fPopup->Go(point, true, true, BRect(point, point + BPoint(20, 20)), true);
+	}
+}
+
+
 status_t
 View::Archive(BMessage* dataMsg, bool deep) const
 {
@@ -215,4 +183,45 @@ View::Archive(BMessage* dataMsg, bool deep) const
 	dataMsg->AddString("class", kClassName);
 
 	return B_OK;
+}
+
+
+View*
+View::Instantiate(BMessage* dataMsg)
+{
+	if (!validate_instantiation(dataMsg, kClassName))
+		return NULL;
+
+	return new View(dataMsg);
+}
+
+
+void
+View::_Remove()
+{
+	BDeskbar* deskbar = new BDeskbar();
+	status_t status = deskbar->RemoveItem(kViewSignature);
+	if (status != B_OK)
+		(new BAlert(NULL, strerror(status), B_TRANSLATE("OK")))->Go(NULL);
+}
+
+
+void
+View::_ShowAbout()
+{
+	BAboutWindow* aboutwindow
+		= new BAboutWindow(B_TRANSLATE_SYSTEM_NAME("WorkspaceNumber"), kApplicationSignature);
+
+	const char* authors[] = {
+		"Michal Kowalski",
+		"Humdinger",
+		NULL
+	};
+
+	aboutwindow->AddCopyright(1999, "Michal Kowalski");
+	aboutwindow->AddAuthors(authors);
+	aboutwindow->AddDescription(
+		B_TRANSLATE("Shows the current workspace number in the Deskbar."));
+
+	aboutwindow->Show();
 }

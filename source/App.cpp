@@ -12,8 +12,11 @@
 #include "View.h"
 
 #include <Alert.h>
+#include <Catalog.h>
 #include <Deskbar.h>
 
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "Application"
 
 App::App()
 	:
@@ -24,13 +27,13 @@ App::App()
 	if (deskbar->HasItem(kViewSignature)) {
 		status_t status = deskbar->RemoveItem(kViewSignature);
 		if (status != B_OK)
-			(new BAlert(NULL, strerror(status), "OK"))->Go(0);
+			(new BAlert(NULL, strerror(status), B_TRANSLATE("OK")))->Go(0);
 	} else {
 		float height = deskbar->MaxItemHeight();
 		View* replicant = new View(BRect(0, 0, height, height));
 		status_t status = deskbar->AddItem(replicant);
 		if (status != B_OK)
-			(new BAlert(NULL, strerror(status), "OK"))->Go(0);
+			(new BAlert(NULL, strerror(status), B_TRANSLATE("OK")))->Go(0);
 	}
 }
 

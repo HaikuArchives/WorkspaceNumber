@@ -1,10 +1,11 @@
 /*
  * Copyright 1999, Michał Kowalski
+ * Copyright 2023, HaikuArchives Team
  * Distributed under the terms of the MIT License.
  *
  * Authors:
  * 		Michał Kowalski
- *
+ *		Humdinger
  */
 #ifndef VIEW_H
 #define VIEW_H
@@ -29,20 +30,20 @@ public:
 					~View();
 
 	virtual void 	AttachedToWindow();
-	virtual void 	MessageReceived(BMessage* message);
 	virtual void 	Draw(BRect rect);
-	virtual status_t Archive(BMessage* dataMsg, bool deep = true) const;
+	virtual void 	MessageReceived(BMessage* message);
 	virtual void 	MouseDown(BPoint point);
 
+	virtual status_t Archive(BMessage* dataMsg, bool deep = true) const;
 	static View* 	Instantiate(BMessage* dataMsg);
 
 private:
-			void	Remove();
+			void	_Remove();
+			void	_ShowAbout();
 
-	BMessageRunner*	fRunner;
 	int32			fCurrentWorkspace;
 	BPopUpMenu*		fPopup;
-
+	BMessageRunner*	fRunner;
 };
 
 #endif // VIEW_H
