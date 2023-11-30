@@ -220,8 +220,6 @@ View::_ShowAbout()
 
 	aboutwindow->AddCopyright(1999, "Michal Kowalski");
 	aboutwindow->AddAuthors(authors);
-	aboutwindow->AddDescription(
-		B_TRANSLATE("Shows the current workspace number in the Deskbar."));
 
 	aboutwindow->Show();
 }

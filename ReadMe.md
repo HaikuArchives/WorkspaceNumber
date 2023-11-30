@@ -11,4 +11,3 @@ To remove WorkspaceNumber from Deskbar launch it again or right-click the icon a
 
 WorkspaceNumber was originally developed in 1999 for the BeOS by Michał Kowalski, who used the Pulse application to learn about handling of Deskbar replicants.
 
-You can help with translations at [Polyglot](https://i18n.kacperkasper.pl/projects).
