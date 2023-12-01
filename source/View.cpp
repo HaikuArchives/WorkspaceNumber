@@ -18,6 +18,7 @@
 #include <ColorConversion.h>
 #include <Deskbar.h>
 #include <MenuItem.h>
+#include <Roster.h>
 #include <Screen.h>
 
 #include <stdio.h>
@@ -161,6 +162,8 @@ View::MouseDown(BPoint point)
 		ConvertToScreen(&point);
 		fPopup->Go(point, true, true, BRect(point, point + BPoint(20, 20)), true);
 	}
+	if (buttons & B_PRIMARY_MOUSE_BUTTON)
+		be_roster->Launch("application/x-vnd.Be-WORK"); // launch Workspaces applet
 }
 
 
