@@ -14,7 +14,6 @@
 
 
 #define kApplicationSignature "application/x-vnd.MKowalski-Workspace"
-#define kClassName "WorkspaceNumber"
 #define kViewSignature "WorkspaceNumberView"
 
 

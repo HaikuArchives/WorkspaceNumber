@@ -50,12 +50,7 @@ View::View(BMessage* archive)
 	BView(archive),
 	fRunner(NULL)
 {
-	SetResizingMode(B_FOLLOW_ALL_SIDES);
-	SetFlags(B_WILL_DRAW);
-
 	fCurrentWorkspace = -1;
-
-	SetDrawingMode(B_OP_COPY);
 
 	BFont font = *be_bold_font;
 	SetFont(&font);
@@ -95,10 +90,7 @@ View::Draw(BRect rect)
 
 	rect = Bounds();
 	rgb_color bgColor = BScreen().DesktopColor();
-	SetHighColor(Parent()->ViewColor());
 	SetLowColor(Parent()->ViewColor());
-	// erase whole area
-	FillRect(rect);
 
 	SetHighColor(bgColor);
 	FillEllipse(rect);
@@ -176,20 +168,19 @@ status_t
 View::Archive(BMessage* dataMsg, bool deep) const
 {
 	status_t status = BView::Archive(dataMsg, deep);
-	if (status != B_OK)
-		return status;
+	if (status == B_OK)
+		dataMsg->AddString("add_on", kApplicationSignature);
+	if (status == B_OK)
+		dataMsg->AddString("class", kViewSignature);
 
-	dataMsg->AddString("add_on", kApplicationSignature);
-	dataMsg->AddString("class", kClassName);
-
-	return B_OK;
+	return status;
 }
 
 
 View*
 View::Instantiate(BMessage* dataMsg)
 {
-	if (!validate_instantiation(dataMsg, kClassName))
+	if (!validate_instantiation(dataMsg, kViewSignature))
 		return NULL;
 
 	return new View(dataMsg);
