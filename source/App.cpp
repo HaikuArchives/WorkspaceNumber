@@ -1,10 +1,11 @@
 /*
  * Copyright 1999, Michał Kowalski
+ * Copyright 2023, HaikuArchives Team
  * Distributed under the terms of the MIT License.
  *
  * Authors:
  * 		Michał Kowalski
- *
+ *		Humdinger
  */
 
 
@@ -14,6 +15,10 @@
 #include <Alert.h>
 #include <Catalog.h>
 #include <Deskbar.h>
+#include <Roster.h>
+
+#include <stdio.h>
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Application"
@@ -22,18 +27,44 @@ App::App()
 	:
 	BApplication(kApplicationSignature)
 {
-	BDeskbar* deskbar = new BDeskbar();
-	// if already installed - remove
-	if (deskbar->HasItem(kViewSignature)) {
-		status_t status = deskbar->RemoveItem(kViewSignature);
-		if (status != B_OK)
-			(new BAlert(NULL, strerror(status), B_TRANSLATE("OK")))->Go(0);
-	} else {
-		float height = deskbar->MaxItemHeight();
-		View* replicant = new View(BRect(0, 0, height, height));
-		status_t status = deskbar->AddItem(replicant);
-		if (status != B_OK)
-			(new BAlert(NULL, strerror(status), B_TRANSLATE("OK")))->Go(0);
+	BDeskbar deskbar;
+
+	if (!deskbar.IsRunning())
+		return;
+
+	// if the replicant is already running, remove it
+	if (deskbar.HasItem(kViewSignature))
+		_RemoveViewFromDeskbar();
+	else
+		_AddViewToDeskbar();
+}
+
+void
+App::_AddViewToDeskbar()
+{
+	app_info appInfo;
+	be_app->GetAppInfo(&appInfo);
+
+	BDeskbar deskbar;
+
+	status_t res = deskbar.AddItem(&appInfo.ref);
+	if (res != B_OK)
+		printf("Failed adding deskbar icon: %" B_PRId32 "\n", res);
+}
+
+
+void
+App::_RemoveViewFromDeskbar()
+{
+	BDeskbar deskbar;
+	int32 found_id;
+	if (deskbar.GetItemInfo(kViewSignature, &found_id) == B_OK) {
+		status_t err = deskbar.RemoveItem(found_id);
+		if (err != B_OK) {
+			printf("WorkspaceNumber: Error removing replicant id "
+				   "%" B_PRId32 ": %s\n",
+				found_id, strerror(err));
+		}
 	}
 }
 

@@ -19,7 +19,11 @@
 
 class App : BApplication {
 public:
-				App();
+					App();
+
+private:
+	void			_AddViewToDeskbar();
+	void			_RemoveViewFromDeskbar();
 };
 
 #endif // APP_H

@@ -33,7 +33,7 @@ extern "C" BView* instantiate_deskbar_item(float maxWidth, float maxHeight);
 BView*
 instantiate_deskbar_item(float maxWidth, float maxHeight)
 {
-	return new View(BRect(0, 0, maxWidth - 1, maxHeight - 1));
+	return new View(BRect(0, 0, maxHeight - 1, maxHeight - 1));
 }
 
 
