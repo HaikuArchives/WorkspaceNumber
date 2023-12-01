@@ -39,29 +39,17 @@ instantiate_deskbar_item(float maxWidth, float maxHeight)
 
 View::View(BRect rect)
 	:
-	BView(rect, kViewSignature, B_FOLLOW_ALL_SIDES, B_WILL_DRAW | B_FRAME_EVENTS),
-	fRunner(NULL)
+	BView(rect, kViewSignature, B_FOLLOW_ALL_SIDES, B_WILL_DRAW | B_FRAME_EVENTS)
 {
-	fCurrentWorkspace = -1;
 }
 
 
 View::View(BMessage* archive)
 	:
-	BView(archive),
-	fRunner(NULL)
+	BView(archive)
 {
-	fCurrentWorkspace = -1;
-
 	BFont font = *be_bold_font;
 	SetFont(&font);
-}
-
-
-View::~View()
-{
-	if (fRunner != NULL)
-		delete fRunner;
 }
 
 
@@ -69,10 +57,6 @@ void
 View::AttachedToWindow()
 {
 	SetViewColor(B_TRANSPARENT_COLOR);
-
-	BMessenger messenger(this);
-	// Use a BMessageRunner to deliver periodic messsages
-	fRunner	= new BMessageRunner(messenger, new BMessage(MSG_REFRESH_DISP), 200000, -1);
 
 	// Build popup menu
 	fPopup = new BPopUpMenu("PopUpMenu", false, false);
@@ -86,9 +70,6 @@ View::AttachedToWindow()
 void
 View::Draw(BRect rect)
 {
-	if (fCurrentWorkspace < 0)
-		return;
-
 	rect = Bounds();
 	rgb_color bgColor = BScreen().DesktopColor();
 	SetLowColor(Parent()->ViewColor());
@@ -106,7 +87,7 @@ View::Draw(BRect rect)
 	StrokeEllipse(rect.InsetByCopy(1, 1));
 
 	char buffer[16];
-	sprintf(buffer, "%d", int(fCurrentWorkspace + 1));
+	sprintf(buffer, "%d", int(current_workspace() + 1));
 	float width = StringWidth(buffer);
 	// set low color for right text anti-aliasing
 	SetLowColor(bgColor);
@@ -126,15 +107,9 @@ void
 View::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case MSG_REFRESH_DISP:
-		{
-			// check if current workspace has changed
-			int32 workspace = current_workspace();
-			if (fCurrentWorkspace != workspace) {
-				fCurrentWorkspace = workspace;
-				Draw(Bounds());
-			}
-		} break;
+		case B_WORKSPACE_ACTIVATED:
+			Draw(Bounds());
+			break;
 
 		case MSG_QUIT:
 			_Remove();
@@ -171,10 +146,12 @@ status_t
 View::Archive(BMessage* dataMsg, bool deep) const
 {
 	status_t status = BView::Archive(dataMsg, deep);
+
 	if (status == B_OK)
-		dataMsg->AddString("add_on", kApplicationSignature);
+		status = dataMsg->AddString("add_on", kApplicationSignature);
+
 	if (status == B_OK)
-		dataMsg->AddString("class", kViewSignature);
+		status = dataMsg->AddString("class", kViewSignature);
 
 	return status;
 }

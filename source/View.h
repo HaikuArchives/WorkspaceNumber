@@ -10,14 +10,12 @@
 #ifndef VIEW_H
 #define VIEW_H
 
-#include <MessageRunner.h>
 #include <PopUpMenu.h>
 #include <View.h>
 
 
 enum {
-	MSG_REFRESH_DISP = 0,
-	MSG_QUIT,
+	MSG_QUIT = 0,
 	MSG_ABOUT
 };
 
@@ -27,7 +25,6 @@ class View : public BView
 public:
 					View(BRect rect);
 					View(BMessage* archive);
-					~View();
 
 	virtual void 	AttachedToWindow();
 	virtual void 	Draw(BRect rect);
@@ -41,9 +38,7 @@ private:
 			void	_Remove();
 			void	_ShowAbout();
 
-	int32			fCurrentWorkspace;
 	BPopUpMenu*		fPopup;
-	BMessageRunner*	fRunner;
 };
 
 #endif // VIEW_H
