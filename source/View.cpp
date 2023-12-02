@@ -108,6 +108,15 @@ void
 View::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
+		case B_MOUSE_WHEEL_CHANGED:
+		{
+			float deltaY = message->FindFloat("be:wheel_delta_y");
+			if (deltaY > 0.1)
+				activate_workspace(current_workspace() + 1);
+			else if (deltaY < -0.1)
+				activate_workspace(current_workspace() - 1);
+		} break;
+
 		case B_WORKSPACE_ACTIVATED:
 			Draw(Bounds());
 			break;
