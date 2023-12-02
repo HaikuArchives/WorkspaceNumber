@@ -37,6 +37,8 @@ App::App()
 		_RemoveViewFromDeskbar();
 	else
 		_AddViewToDeskbar();
+
+	be_app->PostMessage(B_QUIT_REQUESTED); // Bye, bye
 }
 
 void
