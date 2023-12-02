@@ -71,6 +71,7 @@ void
 View::Draw(BRect rect)
 {
 	rect = Bounds();
+	rect.InsetBy(0.5, 0.5);
 	rgb_color bgColor = BScreen().DesktopColor();
 	SetLowColor(Parent()->ViewColor());
 
@@ -97,8 +98,8 @@ View::Draw(BRect rect)
 	font_height fontHeight;
 	font.GetHeight(&fontHeight);
 	float y = (rect.bottom + rect.top
-		+ ceilf(fontHeight.ascent) - ceilf(fontHeight.descent)) / 2;
-	float x = (rect.Width() - width + 1.0) / 2.0;
+		+ ceilf(fontHeight.ascent) - ceilf(fontHeight.descent)) / 2 + 1;
+	float x = (rect.Width() - width) / 2.0 + 1;
 	DrawString(buffer, BPoint(x, y));
 }
 
