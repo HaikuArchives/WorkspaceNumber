@@ -7,7 +7,11 @@ It helps keeping track of the current workspace in case you have similar or the 
 
 ![screenshot](./screenshot.png)
 
-To remove WorkspaceNumber from Deskbar launch it again or right-click the icon and select _Quit_.
+Left-click the icon to open the [Workspaces applet](https://www.haiku-os.org/docs/userguide/en/desktop-applets/workspaces.html).   
+Use the mouse-wheel while hovering over the icon to switch through the workspaces.
+
+To remove WorkspaceNumber from Deskbar, launch it again or right-click the icon and select _Quit_.
+
+* * *
 
 WorkspaceNumber was originally developed in 1999 for the BeOS by Michał Kowalski, who used the Pulse application to learn about handling of Deskbar replicants.
-
