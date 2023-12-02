@@ -17,7 +17,7 @@
 #define kViewSignature "WorkspaceNumberView"
 
 
-class App : BApplication {
+class App : public BApplication {
 public:
 					App();
 

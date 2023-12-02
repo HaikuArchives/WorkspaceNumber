@@ -72,7 +72,9 @@ App::_RemoveViewFromDeskbar()
 int
 main()
 {
-	new App();
-	delete be_app;
+	App* app = new App();
+	app->Run();
+
+	delete app;
 	return 0;
 }
